@@ -10,9 +10,10 @@ fi
 cd $scriptdir
 
 htmldir="_html"
-[[ ! -e $htmldir ]] && mkdir $htmldir
+[[ -e $htmldir ]] && \rm -rf $htmldir
+mkdir -p $htmldir
 # Convert all slides from markdown
-for slide in **/*.{mp,html}(.N); do
+for slide in **/*.{md,html}(.N); do
     dst="$htmldir/${slide:r}.html"
     [[ ! -e ${dst:h} ]] && mkdir -p ${dst:h}
     case ${slide:e} in
@@ -27,8 +28,9 @@ name=${PWD:t}
 cat head.html
 for slide in $htmldir/**/*.html(.N); do
     case $slide in
-        head.html|tail.html) continue
+        $htmldir/head.html|$htmldir/tail.html) continue ;;
     esac
+    print -- "$slide" >&2
     print -- '<section class="slide">'
     cat $slide | sed 's#&amp;#<span class="and">&</span>#g'
     print -- '</section>'
