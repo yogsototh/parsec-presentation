@@ -1,0 +1,37 @@
+#!/usr/bin/env zsh
+
+# get script directory
+if [[ ${0[0]} = '/' ]]; then
+    scriptdir="${0:h}"
+else
+    scriptdir="$PWD/${0:h}"
+fi
+
+cd $scriptdir
+
+htmldir="_html"
+[[ ! -e $htmldir ]] && mkdir $htmldir
+# Convert all slides from markdown
+for slide in **/*.{mp,html}(.N); do
+    dst="$htmldir/${slide:r}.html"
+    [[ ! -e ${dst:h} ]] && mkdir -p ${dst:h}
+    case ${slide:e} in
+        md)   pandoc -f markdown -t html $slide > $dst;;
+        html) cp $slide $dst;;
+    esac
+done
+
+name=${PWD:t}
+
+{
+cat head.html
+for slide in $htmldir/**/*.html(.N); do
+    case $slide in
+        head.html|tail.html) continue
+    esac
+    print -- '<section class="slide">'
+    cat $slide | sed 's#&amp;#<span class="and">&</span>#g'
+    print -- '</section>'
+done
+cat tail.html
+} > ../$name.html

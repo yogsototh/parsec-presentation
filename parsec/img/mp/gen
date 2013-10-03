@@ -1,0 +1,79 @@
+#!/usr/bin/env zsh
+
+if [[ ${0[0]} = '/' ]]; then
+    scriptdir="${0:h}"
+else
+    scriptdir="$PWD/${0:h}"
+fi
+
+tmpdir=/tmp/mp
+[[ ! -d $tmpdir ]] && mkdir $tmpdir
+
+typeset -a fics
+if (($#<1)); then
+    fics=( $scriptdir/*.mp(N) )
+else
+    for f in $@; do
+        fics=( $fics $scriptdir/$f )
+    done
+fi
+
+(( ${#fics} == 0 )) && {
+    print -- "No .mp files indo $scriptdir"
+    exit 1
+}
+
+(( ${#fics} == 1 )) && [[ ${fics[1]} = "$scriptdir/graph.mp" ]] && {
+    print -- "Only graph.mp files indo $scriptdir"
+    exit 1
+}
+
+if (($#==0)); then
+    listfic=( $fics )
+else
+    listfic=( $* )
+fi
+
+\cp -f $listfic $tmpdir
+cd $tmpdir
+for fpfic in $listfic; do
+    fic=${fpfic:t}
+    tmp=${fic:r}-tmp.mp
+    eps=${fic:r}-tmp.1
+    png=${fic:r}.png
+    old=${fic:r}.old
+    [[ $fic = "graph.mp" ]] && continue
+    {
+        echo -n >&2 "MPOST [$fic]"
+        cat $scriptdir/graph.mp
+        echo 'beginfig(1)'
+        echo '  drawoptions (withcolor base1);'
+        cat $fic
+        echo 'endfig;'
+        echo 'bye;'
+    } | sed 's/base00/baseZeroZero/g' \
+      | sed 's/base01/baseZeroOne/g' \
+      | sed 's/base02/baseZeroTwo/g' \
+      | sed 's/base03/baseZeroThree/g' \
+      | sed 's/base0/baseZero/g' \
+      | sed 's/base1/baseOne/g' \
+      | sed 's/base2/baseTwo/g' \
+      | sed 's/base3/baseThree/g' \
+      | sed 's/red/s_red/g' \
+      | sed 's/blue/s_blue/g' \
+      | sed 's/green/s_green/g' > $tmp
+    [[ -e $old ]] && diff $tmp $old >/dev/null && { echo " identical"; continue }
+
+	dpi=$(grep '% DPI' $tmp | awk '{print $3}')
+	[[ $dpi = "" ]] && dpi=600
+
+	print
+	print "[DPI]: $dpi"
+
+    print -- "[$PWD]: mpost $tmp && convert -density $dpi $tmp.1 $png"
+    mpost --tex=latex $tmp && \
+		convert -colorspace rgb -density $dpi $eps '(' +clone -background black -shadow 90x4+0+1 ')' +swap -background none -layers merge +repage $png && \
+        \cp -f $png $scriptdir && \
+        \cp -f $tmp $old && \
+        echo "updated"
+done
