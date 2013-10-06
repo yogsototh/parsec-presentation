@@ -103,7 +103,7 @@ body.deck-container {
     text-decoration: none;
     outline: none; }
   .deck-container a, .deck-container a:link, .deck-container a:visited, .deck-container a:active {
-    color: #839496; }
+    color: #93a1a1; }
   .deck-container a:hover {
     color: #93a1a1; }
   .deck-container hr {
@@ -262,7 +262,7 @@ body.deck-container {
   .deck-container .date {
     font-size: 0.8em;
     color: #002b36;
-    border: 1px solid #839496;
+    border: 1px solid #93a1a1;
     text-align: center;
     width: 4.1em;
     line-height: 1.5em;
@@ -332,11 +332,11 @@ body.deck-container {
     margin-right: 0px;
     padding: 1.5em;
     line-height: 1.5em;
-    color: #a5b6b8;
+    color: #b5c3c3;
     margin-top: 2em;
     text-align: center; }
     .deck-container #bottom a {
-      color: #94a5a7; }
+      color: #a4b2b2; }
     .deck-container #bottom a:hover {
       color: #93a1a1; }
   .deck-container #sousliens {
@@ -695,7 +695,7 @@ body.deck-container {
   .deck-container strong, .deck-container b, .deck-container i, .deck-container em {
     color: #93a1a1; }
     .deck-container strong a, .deck-container b a, .deck-container i a, .deck-container em a {
-      color: #839496; }
+      color: #93a1a1; }
     .deck-container strong a:hover, .deck-container b a:hover, .deck-container i a:hover, .deck-container em a:hover {
       color: #93a1a1; }
   .deck-container .corps p strong, .deck-container .corps p b, .deck-container .corps p i, .deck-container .corps p em {
@@ -722,7 +722,7 @@ body.deck-container {
     font-size: 0.8em;
     height: 9em; }
     .deck-container .block a {
-      color: #839496; }
+      color: #93a1a1; }
     .deck-container .block a:hover {
       color: #93a1a1; }
   .deck-container .block h3 {

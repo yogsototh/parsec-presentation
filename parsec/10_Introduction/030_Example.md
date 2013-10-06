@@ -2,9 +2,9 @@
 
 From String:
 
-~~~
+``` haskell
 (1+3)*(1+5+9)
-~~~
+```
 
 To data structure:
 
