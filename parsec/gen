@@ -10,14 +10,31 @@ fi
 cd $scriptdir
 
 htmldir="_html"
+tmpdir="_tmp"
 [[ -e $htmldir ]] && \rm -rf $htmldir
+[[ -e $tmpdir ]] && \rm -rf $tmpdir
 mkdir -p $htmldir
+
+# split a markdown file on ##
+splitMarkdown() {
+    dstdir=$tmpdir/${1:h}
+    mdfic=$tmpdir/${1:r}
+    [[ ! -d $dstdir ]] && mkdir -p $dstdir
+    awk '/^## /{ dest=sprintf("'$mdfic'-%03d.md",n); print dest; n++ } { print $0 > dest}' $1
+}
+
 # Convert all slides from markdown
 for slide in **/*.{md,html}(.N); do
     dst="$htmldir/${slide:r}.html"
     [[ ! -e ${dst:h} ]] && mkdir -p ${dst:h}
     case ${slide:e} in
-        md)   pandoc -f markdown -t html $slide > $dst;;
+        md) i=0
+            for tmpfic in $(splitMarkdown $slide); do
+                ((i++))
+                print "Split $tmpfic"
+                dst="$( print -- ${tmpfic:r}.html | sed 's#'$tmpdir'#'$htmldir'#' )"
+                pandoc -f markdown -t html $tmpfic > $dst
+            done ;;
         html) cp $slide $dst;;
     esac
 done
