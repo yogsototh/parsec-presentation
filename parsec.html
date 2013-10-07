@@ -308,9 +308,112 @@ expecting digit or <span class="dt">Number</span> between <span class="dv">0</sp
 <pre class="sourceCode haskell"><code class="sourceCode haskell">lexeme parser <span class="fu">=</span> whitespaces <span class="fu">*&gt;</span> parser <span class="fu">&lt;*</span> whitespaces</code></pre>
 </section>
 <section class="slide">
-<h2 id="data-structure">Data Structure</h2>
-<p>Remember from text to data structure</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Tree</span> <span class="fu">=</span> <span class="dt">Node</span> <span class="dt">Element</span> [<span class="dt">Tree</span>]</code></pre>
+<h2 id="scheme">Scheme</h2>
+<p><a href="https://en.wikibooks.org/wiki/Write_Yourself_a_Scheme_in_48_Hours">Write Yourself a Scheme in 48 hours</a></p>
+<p>Remember from text to data structure. Our data structure:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">LispVal</span> <span class="fu">=</span>    <span class="dt">Atom</span> <span class="dt">String</span>
+                <span class="fu">|</span> <span class="dt">List</span> [<span class="dt">LispVal</span>]
+                <span class="fu">|</span> <span class="dt">DottedList</span> [<span class="dt">LispVal</span>] <span class="dt">LispVal</span>
+                <span class="fu">|</span> <span class="dt">Number</span> <span class="dt">Integer</span>
+                <span class="fu">|</span> <span class="dt">String</span> <span class="dt">String</span>
+                <span class="fu">|</span> <span class="dt">Bool</span> <span class="dt">Bool</span></code></pre>
+</section>
+<section class="slide">
+<h2 id="parse-string">Parse String</h2>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">parseString ::</span> <span class="dt">Parser</span> <span class="dt">LispVal</span>
+parseString <span class="fu">=</span> <span class="kw">do</span>
+    char <span class="ch">&#39;&quot;&#39;</span>
+    x <span class="ot">&lt;-</span> many (noneOf <span class="st">&quot;\&quot;&quot;</span>)
+    char <span class="ch">&#39;&quot;&#39;</span>
+    return (<span class="dt">String</span> x)</code></pre>
+<pre><code>-- parseString on &#39;&quot;toto&quot;&#39;
+(String &quot;toto&quot;) :: LispVal
+-- parseString on &#39;&quot; hello&quot;&#39;
+(String &quot; hello&quot;) :: LispVal</code></pre>
+</section>
+<section class="slide">
+<h2 id="parse-atom">Parse Atom</h2>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">symbol ::</span> <span class="dt">Parser</span> <span class="dt">Char</span>
+symbol <span class="fu">=</span> oneOf <span class="st">&quot;!#$%<span class="and">&amp;</span>|*+-/:&lt;=&gt;?@^_~&quot;</span>
+
+<span class="ot">parseAtom ::</span> <span class="dt">Parser</span> <span class="dt">LispVal</span>
+parseAtom <span class="fu">=</span> <span class="kw">do</span>
+    first <span class="ot">&lt;-</span> letter <span class="fu">&lt;|&gt;</span> symbol
+    rest <span class="ot">&lt;-</span> many (letter <span class="fu">&lt;|&gt;</span> digit <span class="fu">&lt;|&gt;</span> symbol)
+    <span class="kw">let</span> atom <span class="fu">=</span> first<span class="fu">:</span>rest
+    return <span class="fu">$</span> <span class="kw">case</span> atom <span class="kw">of</span>
+                <span class="st">&quot;#t&quot;</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span> <span class="dt">True</span>
+                <span class="st">&quot;#f&quot;</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span> <span class="dt">False</span>
+                _    <span class="ot">-&gt;</span> <span class="dt">Atom</span> atom</code></pre>
+</section>
+<section class="slide">
+<h2 id="test-parseatom">Test <code>parseAtom</code></h2>
+<pre><code>-- parseAtom on &#39;#t&#39;
+(Bool True) :: LispVal
+-- parseAtom on &#39;#f&#39;
+(Bool False) :: LispVal
+-- parseAtom on &#39;some-atom&#39;
+(Atom &quot;some-atom&quot;) :: LispVal</code></pre>
+</section>
+<section class="slide">
+<h2 id="parse-number">Parse Number</h2>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">parseNumber ::</span> <span class="dt">Parser</span> <span class="dt">LispVal</span>
+parseNumber <span class="fu">=</span> <span class="dt">Number</span> <span class="fu">.</span> read <span class="fu">&lt;$&gt;</span> many1 digit</code></pre>
+<pre><code>-- parseNumber on &#39;18&#39;
+Number 18 :: LispVal
+-- parseNumber on &#39;188930992344321234&#39;
+Number 188930992344321234 :: LispVal</code></pre>
+</section>
+<section class="slide">
+<h2 id="compose-all-parsers">Compose all parsers</h2>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">parseExpr ::</span> <span class="dt">Parser</span> <span class="dt">LispVal</span>
+parseExpr <span class="fu">=</span> parseAtom
+            <span class="fu">&lt;||&gt;</span> parseString
+            <span class="fu">&lt;||&gt;</span> parseNumber</code></pre>
+</section>
+<section class="slide">
+<h2 id="test-the-parser">Test the parser</h2>
+<pre><code>-- parseExpr on &#39;188930992344321234&#39;
+Number 188930992344321234 :: LispVal
+-- parseExpr on &#39;#t&#39;
+Bool True :: LispVal
+-- parseExpr on &#39;just-some-word&#39;
+Atom &quot;just-some-word&quot; :: LispVal
+-- parseExpr on &#39;%-symbol-start&#39;
+Atom &quot;%-symbol-start&quot; :: LispVal
+-- parseExpr on &#39;&quot;a String&quot;&#39;
+String &quot;a String&quot; :: LispVal</code></pre>
+</section>
+<section class="slide">
+<h2 id="recursive-parsers">Recursive Parsers</h2>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">parseList ::</span> <span class="dt">Parser</span> <span class="dt">LispVal</span>
+parseList <span class="fu">=</span> <span class="dt">List</span> <span class="fu">&lt;$&gt;</span>
+    (char <span class="ch">&#39;(&#39;</span> <span class="fu">*&gt;</span> sepBy parseExpr&#39; spaces <span class="fu">&lt;*</span> char <span class="ch">&#39;)&#39;</span> )
+
+<span class="ot">parseExpr&#39; ::</span> <span class="dt">Parser</span> <span class="dt">LispVal</span>
+parseExpr&#39; <span class="fu">=</span> parseAtom
+             <span class="fu">&lt;||&gt;</span> parseString
+             <span class="fu">&lt;||&gt;</span> parseNumber
+             <span class="fu">&lt;||&gt;</span> parseList</code></pre>
+</section>
+<section class="slide">
+<h2 id="test-parse-list">Test Parse List</h2>
+<pre><code>-- parseExpr&#39; on &#39;(foo (bar baz))&#39;
+List [Atom &quot;foo&quot;,List [Atom &quot;bar&quot;,Atom &quot;baz&quot;]] :: LispVal
+
+-- parseExpr&#39; on &#39;(foo (bar)&#39;
+&quot;parseExpr&#39;&quot; (line 1, column 11):
+unexpected end of input
+expecting white space, letter, &quot;\&quot;&quot;, digit, &quot;(&quot; or &quot;)&quot;
+
+-- parseExpr&#39; on &#39;(((foo)) bar)&#39;
+List [List [List [Atom &quot;foo&quot;]],Atom &quot;bar&quot;] :: LispVal</code></pre>
+</section>
+<section class="slide">
+<h2 id="conclusion">Conclusion</h2>
+<p>So Parser are more powerful than regular expression.<br />Parsec make it very easy to use.<br />Easy to read and to manipulate.</p>
+<p>Notice how you could use parser as any other object in Haskell. You could <code>mapM</code> them for example.</p>
+<p>Any question?</p>
 </section>
 <!-- End slides. -->
 
