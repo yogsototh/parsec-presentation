@@ -794,7 +794,12 @@ body.deck-container {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box; }
-  .deck-container table tr td {
+  .deck-container table tr th {
+    border-bottom: solid 1px #657b83;
+    color: #93a1a1;
+    background: #002b36;
+    font-style: italic; }
+  .deck-container table tr td, .deck-container table tr th {
     padding: 2px 0.5em; }
   .deck-container table tr:nth-child(odd) {
     background-color: #073642; }

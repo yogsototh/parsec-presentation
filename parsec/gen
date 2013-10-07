@@ -31,7 +31,6 @@ for slide in **/*.{md,html}(.N); do
         md) i=0
             for tmpfic in $(splitMarkdown $slide); do
                 ((i++))
-                print "Split $tmpfic"
                 dst="$( print -- ${tmpfic:r}.html | sed 's#'$tmpdir'#'$htmldir'#' )"
                 pandoc -f markdown -t html $tmpfic > $dst
             done ;;

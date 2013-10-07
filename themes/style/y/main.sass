@@ -1034,8 +1034,14 @@ body.deck-container
     box-sizing: border-box
     -moz-box-sizing: border-box
     -webkit-box-sizing: border-box
-  table tr td
-    padding: 2px .5em
+  table tr
+    th
+      border-bottom: solid 1px $base00
+      color: $base1
+      background: $base03
+      font-style: italic
+    td,th
+      padding: 2px .5em
   table tr
     &:nth-child(odd)
       background-color: $secondBackgroundColor

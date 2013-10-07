@@ -93,7 +93,46 @@
 </ul>
 </section>
 <section class="slide">
-<h2 id="parsing-example-1">Parsing Example (1)</h2>
+<h2 id="parsing-in-programming-languages">Parsing in Programming Languages</h2>
+<p>Complexity:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Method</th>
+<th align="left">Typical Example</th>
+<th align="left">Output Data Structure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Splitting</td>
+<td align="left">CSV</td>
+<td align="left">Array, Map</td>
+</tr>
+<tr class="even">
+<td align="left">Regexp</td>
+<td align="left">email</td>
+<td align="left">+ Fixed Layout Tree</td>
+</tr>
+<tr class="odd">
+<td align="left">Parser</td>
+<td align="left">Programming language</td>
+<td align="left">+ Most Data Structure</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="slide">
+<h2 id="parser-culture">Parser <span class="and">&amp;</span> culture</h2>
+<p>In Haskell Parser are really easy to use.</p>
+<p>Generally:</p>
+<ul>
+<li>In most languages: <strong>split</strong> then <strong>regexp</strong> then <strong>parse</strong></li>
+<li>In Haskell: <strong>split</strong> then <strong>parse</strong></li>
+</ul>
+</section>
+<section class="slide">
+<h2 id="parsing-example">Parsing Example</h2>
 <p>From String:</p>
 <pre class="sourceCode haskell"><code class="sourceCode haskell">(<span class="dv">1</span><span class="fu">+</span><span class="dv">3</span>)<span class="fu">*</span>(<span class="dv">1</span><span class="fu">+</span><span class="dv">5</span><span class="fu">+</span><span class="dv">9</span>)</code></pre>
 <p>To data structure:</p>
@@ -108,11 +147,38 @@
 </blockquote>
 </section>
 <section class="slide">
-<h2 id="parsecs">Parsec(s)</h2>
-<p>In reality there is many choices:</p>
-<pre><code>- attoparsec: fast
-- Bytestring-lexing: fast
-- Parsec 3: powerful, nice error reporting</code></pre>
+<h2 id="parser-libraries">Parser Libraries</h2>
+<p>In reality there are many choices:</p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left">attoparsec</td>
+<td align="left">fast</td>
+</tr>
+<tr class="even">
+<td align="left">Bytestring-lexing</td>
+<td align="left">fast</td>
+</tr>
+<tr class="odd">
+<td align="left">Parsec 3</td>
+<td align="left">powerful, nice error reporting</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="slide">
+<h2 id="haskell-remarks-1">Haskell Remarks (1)</h2>
+<p>spaces are meaningful</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">f x   <span class="co">-- ⇔ f(x) in C-like languages</span>
+f x y <span class="co">-- ⇔ f(x,y)</span></code></pre>
+</section>
+<section class="slide">
+<h2 id="haskell-remarks-2">Haskell Remarks (2)</h2>
+<p>Don't mind strange operators (<code>&lt;*&gt;</code>, <code>&lt;$&gt;</code>).<br />Consider them like separators, typically commas.<br />They are just here to deal with types.</p>
+<p>Informally:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">toto <span class="fu">&lt;$&gt;</span> x <span class="fu">&lt;*&gt;</span> y <span class="fu">&lt;*&gt;</span> z
+    <span class="co">-- ⇔ toto x y z</span>
+    <span class="co">-- ⇔ toto(x,y,z) in C-like languages</span></code></pre>
 </section>
 <section class="slide">
 <h2 id="a-parsec-example">A Parsec Example</h2>
@@ -129,25 +195,48 @@ unexpected <span class="st">&quot; &quot;</span>
 expecting digit</code></pre>
 </section>
 <section class="slide">
+<h2 id="comparison-with-regexp-parsec">Comparison with Regexp (Parsec)</h2>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">IP</span> <span class="fu">=</span> <span class="dt">IP</span> <span class="dt">Word8</span> <span class="dt">Word8</span> <span class="dt">Word8</span> <span class="dt">Word8</span>
+ip <span class="fu">=</span> <span class="dt">IP</span> <span class="fu">&lt;$&gt;</span>
+       number <span class="fu">&lt;*</span>  char <span class="ch">&#39;.&#39;</span> <span class="fu">&lt;*&gt;</span>
+       number <span class="fu">&lt;*</span>  char <span class="ch">&#39;.&#39;</span> <span class="fu">&lt;*&gt;</span>
+       number <span class="fu">&lt;*</span>  char <span class="ch">&#39;.&#39;</span> <span class="fu">&lt;*&gt;</span>
+       number
+number <span class="fu">=</span> <span class="kw">do</span>
+    x <span class="ot">&lt;-</span> read <span class="fu">&lt;$&gt;</span> many1 digit
+    guard (<span class="dv">0</span> <span class="fu">&lt;=</span> x <span class="fu"><span class="and">&amp;</span><span class="and">&amp;</span></span> x <span class="fu">&lt;</span> <span class="dv">256</span>)
+    return (fromIntegral x)</code></pre>
+</section>
+<section class="slide">
+<h2 id="comparison-with-regexp-perl-regexp">Comparison with Regexp (Perl Regexp)</h2>
+<pre class="sourceCode perl"><code class="sourceCode perl"><span class="co"># remark: 888.999.999.999 is accepted</span>
+\b\d{<span class="dv">1</span>,<span class="dv">3</span>}\.\d{<span class="dv">1</span>,<span class="dv">3</span>}\.\d{<span class="dv">1</span>,<span class="dv">3</span>}\.\d{<span class="dv">1</span>,<span class="dv">3</span>}\b
+
+<span class="co"># exact but difficult to read</span>
+\b(?:(?:<span class="dv">25</span>[<span class="dv">0-5</span>]|<span class="dv">2</span>[<span class="dv">0-4</span>][<span class="dv">0-9</span>]|[<span class="dv">01</span>]?[<span class="dv">0-9</span>][<span class="dv">0-9</span>]?)\.){<span class="dv">3</span>}
+  (?:<span class="dv">25</span>[<span class="dv">0-5</span>]|<span class="dv">2</span>[<span class="dv">0-4</span>][<span class="dv">0-9</span>]|[<span class="dv">01</span>]?[<span class="dv">0-9</span>][<span class="dv">0-9</span>]?)\b</code></pre>
+<p>Also, regexp are <em>unityped</em> by nature.</p>
+</section>
+<section class="slide">
 <h2 id="monadic-style">Monadic style</h2>
 <pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">number ::</span> <span class="dt">Parser</span> <span class="dt">String</span>
 number <span class="fu">=</span> many1 digit
 
 <span class="ot">number&#39; ::</span> <span class="dt">Parser</span> <span class="dt">Int</span>
 number&#39; <span class="fu">=</span> <span class="kw">do</span>
-    string_of_number <span class="ot">&lt;-</span> many1 digit
-    <span class="fu">return</span> (<span class="fu">read</span> string_of_number)</code></pre>
+    <span class="co">-- digitString :: String</span>
+    digitString <span class="ot">&lt;-</span> many1 digit
+    return (read digitString)</code></pre>
 <pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;32&quot;</span><span class="ot"> ::</span> [<span class="dt">Char</span>]  <span class="co">-- number on &quot;32&quot;</span>
 <span class="dv">32</span><span class="ot">   ::</span> <span class="dt">Int</span>     <span class="co">-- number&#39; on &quot;32&quot;</span></code></pre>
 </section>
 <section class="slide">
-<h2 id="combining-monadic-style">Combining Monadic style</h2>
-<p><br /><span class="math"><em>S</em> = <em>a</em><em>S</em><em>b</em>∣<em>ε</em></span><br /></p>
+<h2 id="combining-monadic-style-s-asb-ε">Combining Monadic style (S = aSb | ε)</h2>
 <pre class="sourceCode haskell"><code class="sourceCode haskell">s <span class="fu">=</span> (<span class="kw">do</span>
-        a <span class="ot">&lt;-</span> char <span class="ch">&#39;a&#39;</span>
-        mid <span class="ot">&lt;-</span> <span class="dt">S</span>
-        b <span class="ot">&lt;-</span> char <span class="ch">&#39;b&#39;</span>
-        <span class="fu">return</span> (a<span class="fu">:</span>mid) <span class="fu">++</span> b<span class="fu">:</span>[]) 
+        a <span class="ot">&lt;-</span> string <span class="st">&quot;a&quot;</span>
+        mid <span class="ot">&lt;-</span> s
+        b <span class="ot">&lt;-</span> string <span class="st">&quot;b&quot;</span>
+        return (a <span class="fu">++</span> mid <span class="fu">++</span> b)
     <span class="fu">&lt;|&gt;</span> string <span class="st">&quot;&quot;</span></code></pre>
 <pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;&quot;</span>          <span class="co">-- s on &quot;&quot;</span>
 <span class="st">&quot;aaabbb&quot;</span>    <span class="co">-- s on &quot;aaabbb&quot;</span>
@@ -158,8 +247,7 @@ unexpected end <span class="kw">of</span> input
 expecting <span class="st">&quot;b&quot;</span></code></pre>
 </section>
 <section class="slide">
-<h2 id="applicative-style">Applicative style</h2>
-<p><br /><span class="math"><em>S</em> = <em>a</em><em>S</em><em>b</em>∣<em>ε</em></span><br /></p>
+<h2 id="combining-applicative-style-s-asb-ε">Combining Applicative style (S = aSb | ε)</h2>
 <pre class="sourceCode haskell"><code class="sourceCode haskell">s <span class="fu">=</span> concat3 <span class="fu">&lt;$&gt;</span> string <span class="st">&quot;a&quot;</span> <span class="fu">&lt;*&gt;</span> s <span class="fu">&lt;*&gt;</span> char <span class="st">&quot;b&quot;</span>
     <span class="fu">&lt;|&gt;</span> string <span class="st">&quot;&quot;</span>
     <span class="kw">where</span>
@@ -183,20 +271,20 @@ monadicParseIP <span class="fu">=</span> <span class="kw">do</span>
     d3 <span class="ot">&lt;-</span> number
     char <span class="ch">&#39;.&#39;</span>
     d4 <span class="ot">&lt;-</span> number
-    <span class="fu">return</span> (<span class="dt">IP</span> d1 d2 d3 d4)</code></pre>
+    return (<span class="dt">IP</span> d1 d2 d3 d4)</code></pre>
 </section>
 <section class="slide">
 <h2 id="write-number-correctly">Write number correctly</h2>
 <pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">number ::</span> <span class="dt">Parser</span> <span class="dt">Int</span>
 number <span class="fu">=</span> <span class="kw">do</span>
-    x <span class="ot">&lt;-</span> <span class="fu">read</span> <span class="fu">&lt;$&gt;</span> many1 digit
+    x <span class="ot">&lt;-</span> read <span class="fu">&lt;$&gt;</span> many1 digit
     guard (<span class="dv">0</span> <span class="fu">&lt;=</span> x <span class="fu"><span class="and">&amp;</span><span class="and">&amp;</span></span> x <span class="fu">&lt;</span> <span class="dv">256</span>) <span class="fu">&lt;?&gt;</span>
-        <span class="st">&quot;Number between 0 and 255 (here &quot;</span> <span class="fu">++</span> <span class="fu">show</span> x <span class="fu">++</span> <span class="st">&quot;)&quot;</span>
-    <span class="fu">return</span> (<span class="fu">fromIntegral</span> x)</code></pre>
+        <span class="st">&quot;Number between 0 and 255 (here &quot;</span> <span class="fu">++</span> show x <span class="fu">++</span> <span class="st">&quot;)&quot;</span>
+    return (fromIntegral x)</code></pre>
 <pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">&gt;&gt;&gt;</span> test parseIP <span class="st">&quot;parseIP&quot;</span> <span class="st">&quot;823.32.80.113&quot;</span>
 <span class="st">&quot;parseIP&quot;</span> (line <span class="dv">1</span>, column <span class="dv">4</span>)<span class="fu">:</span>
 unexpected <span class="st">&quot;.&quot;</span>
-expecting digit <span class="fu">or</span> <span class="dt">Number</span> between <span class="dv">0</span> <span class="fu">and</span> <span class="dv">255</span> (here <span class="dv">823</span>)</code></pre>
+expecting digit or <span class="dt">Number</span> between <span class="dv">0</span> and <span class="dv">255</span> (here <span class="dv">823</span>)</code></pre>
 </section>
 <section class="slide">
 <h2 id="so">So</h2>
