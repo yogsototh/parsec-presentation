@@ -1,3 +1,6 @@
 .DS_Store
 .sass-cache/
 progress/
+.*.swp
+_html
+_tmp
