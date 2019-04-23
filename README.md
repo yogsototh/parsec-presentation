@@ -1,3 +1,12 @@
+> This project has two homes.
+> It is ok to work in github, still, for a better decentralized web
+> please consider contributing (issues, PR, etc...) throught:
+>
+> https://gitlab.esy.fun/yogsototh/parsec-presentation
+
+---
+
+
 This is just my personal branch for [deck.js](http://imakewebthings.github.com/deck.js) presentation.
 
 It doesn't need an Internet connexion to work.
